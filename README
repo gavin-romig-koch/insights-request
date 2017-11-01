@@ -1,0 +1,7 @@
+
+insights-request
+  was taken from magpie which was taken from insights-client
+
+I'd like to try to simplify insights-request into a simpler reusable
+stand alone client for insights
+
