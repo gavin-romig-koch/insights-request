@@ -19,11 +19,19 @@ import requests
 import sys
 import json
 
+found_conf_name = 'insights-client'
+found_default_conf_dir = os.path.join('/etc', found_conf_name)
+for each in ['insights-client', 'redhat-access-insights']:
+    if os.path.exists(os.path.join('/etc', each, each + '.conf')):
+        found_conf_name = each
+        found_default_conf_dir = os.path.join('/etc', each)
+        break
+
 # from constants import InsightsConstants as constants
 #class InsightsConstants(object):
 class constants(object):
-    app_name = 'insights-via'
-    conf_name = 'insights-client'
+    app_name = 'insights-request'
+    conf_name = found_conf_name
     version = '0.0.1'
     auth_method = 'BASIC'
     log_level = 'DEBUG'
@@ -31,7 +39,7 @@ class constants(object):
         os.path.dirname(os.path.abspath(__file__)))
     sleep_time = 300
     user_agent = os.path.join(app_name, 'version')
-    default_conf_dir = '/etc/insights-client/'
+    default_conf_dir = found_default_conf_dir
     log_dir = os.path.join(os.sep, 'var', 'log', app_name)
     default_log_file = os.path.join(log_dir, app_name) + '.log'
     default_conf_file_name = conf_name + '.conf'
