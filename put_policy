@@ -1,0 +1,7 @@
+curl -v -k -X PUT --netrc \
+-H "Content-type: application/json" \
+-d '{"raw_output": "", "check_results": [{"name": "check2", "result": "failed" },{ "name": "hostname must not be \"localhost\"","result": "passed"}]}' \
+"https://cert-api.access.redhat.com/r/insights/v3/systems/534b6f8f-8953-416f-be72-86af08b825a5/policies/policy-11"
+
+#-d '{"raw_output": "raw output 1", "check_results": [{"name": "check1", "result": "result1"}, {"name": "check2", "result": "result2"}]}' \
+#-d '{"raw_output": "", "check_results": [{"name": "fips mode must be enabled", "result": "failed" },{ "name": "hostname must not be \"localhost\"","result": "passed"},{"name": "prelink package must be absent (not installed)","result": "failed"},{"name": "kernel package must be the latest","result": "failed"},{"name": "sshd config file must be owned by root and only readable by root","result": "passed"}]}' \

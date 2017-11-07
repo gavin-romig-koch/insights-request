@@ -1,0 +1,3 @@
+curl -v -k -X GET --netrc \
+"https://cert-api.access.redhat.com/r/insights/v3/systems/534b6f8f-8953-416f-be72-86af08b825a5/policies/${1}" | python -m json.tool
+

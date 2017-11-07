@@ -933,7 +933,7 @@ class InsightsSession:
             raise InsightsLoginException("Could not log into Insights Lookup error")
 
     def get(self, id, data):
-        host = "https://cert-api.access.redhat.com/"
+        host = "https://cert-api.access.redhat.com"
         #host = "https://insights.redhat.com/"
         commands = {
             "reports" : "/r/insights/v1/systems/{system_id}/reports",
@@ -941,11 +941,50 @@ class InsightsSession:
             "system" : "/r/insights/v2/systems/{system_id}",
             "maintenance" : "/r/insights/v3/maintenance?ansible=true",
             "top" : "/r/insights/",
+            "policies" : "/r/insights/v3/systems/{system_id}/policies",
+            "policy" : "/r/insights/v3/systems/{system_id}/policies/{policy_name}",
             }
 
         url = host + commands[id].format(**data)
         print("URL:", url)
         return self.pconn.session.get(url, timeout=10)
+
+    def delete(self, id, data):
+        host = "https://cert-api.access.redhat.com"
+        #host = "https://insights.redhat.com/"
+        commands = {
+            "reports" : "/r/insights/v1/systems/{system_id}/reports",
+            "systemV1" : "/r/insights/v1/systems/{system_id}",
+            "system" : "/r/insights/v2/systems/{system_id}",
+            "maintenance" : "/r/insights/v3/maintenance?ansible=true",
+            "top" : "/r/insights/",
+            "policies" : "/r/insights/v3/systems/{system_id}/policies",
+            "policy" : "/r/insights/v3/systems/{system_id}/policies/{policy_name}",
+            }
+
+        url = host + commands[id].format(**data)
+        print("URL:", url)
+        return self.pconn.session.delete(url, timeout=10)
+
+    def put(self, id, data):
+        host = "https://cert-api.access.redhat.com"
+        #host = "https://insights.redhat.com/"
+        commands = {
+            "reports" : "/r/insights/v1/systems/{system_id}/reports",
+            "systemV1" : "/r/insights/v1/systems/{system_id}",
+            "system" : "/r/insights/v2/systems/{system_id}",
+            "maintenance" : "/r/insights/v3/maintenance?ansible=true",
+            "top" : "/r/insights/",
+            "policies" : "/r/insights/v3/systems/{system_id}/policies",
+            "policy" : "/r/insights/v3/systems/{system_id}/policies/{policy_name}",
+            }
+
+        headers = {'Content-Type': 'application/json'}
+        url = host + commands[id].format(**data)
+        body = json.dumps(data["policy"])
+        print("URL:", url)
+        print("BODY:", body)
+        return self.pconn.session.put(url, data=body, headers=headers)
 
     def getJSON(self, id, data):
         response = self.get(id, data)
@@ -956,6 +995,12 @@ class InsightsSession:
 
     def get_and_print(self, id, data):
         self.print_response(self.get(id, data))
+
+    def delete_and_print(self, id, data):
+        self.print_response(self.delete(id, data))
+
+    def put_and_print(self, id, data):
+        self.print_response(self.put(id, data))
 
     def print_response(self, response):
         print("HTTP Status Code: %d" % response.status_code)
@@ -995,17 +1040,83 @@ def test5(session, system_id):
 def test6(session, system_id):
     session.get_and_print("top", {})
     
+def test7(session, system_id):
+    session.get_and_print("policies", { "system_id": system_id })
 
+def test8(session, system_id, policy_name, policy):
+    session.put_and_print("policy",
+                          {
+                              "system_id" : system_id,
+                              "policy_name" : policy_name,
+                              "policy" : policy,
+                          })
+
+def test9(session, system_id, policy_name):
+    session.delete_and_print("policy",
+                             {
+                                 "system_id" : system_id,
+                                 "policy_name" : policy_name,
+                             })
+
+def test10(session, system_id, policy_name, policy):
+    session.delete_and_print("policy",
+                          {
+                              "system_id" : system_id,
+                              "policy_name" : policy_name,
+                          })
+    session.put_and_print("policy",
+                          {
+                              "system_id" : system_id,
+                              "policy_name" : policy_name,
+                              "policy" : policy,
+                          })
+
+def test11(session, system_id, policy_name):
+    session.get_and_print("policy",
+                          {
+                              "system_id" : system_id,
+                              "policy_name" : policy_name,
+                          })
+
+    
+APolicyName = "policy-30"
+APolicy = {
+    "raw_output": "",
+    "check_results": [
+        {
+            "name": "fips mode must be enabled",
+            "result": "failed"
+        },
+        {
+            "name": "hostname must not be \"localhost\"",
+            "result": "passed"
+        },
+        {
+            "name": "prelink package must be absent (not installed)",
+            "result": "failed"
+        },
+        {
+            "name": "kernel package must be the latest",
+            "result": "failed"
+        },
+        {
+            "name": "sshd config file must be owned by root and only readable by root",
+            "result": "passed"
+        }
+    ]
+}
 
 if __name__ == "__main__":
     session = InsightsSession()
     system_id="534b6f8f-8953-416f-be72-86af08b825a5"
-#    test1(session, system_id)
-#    test2(session, system_id)
-#    test3(session, system_id)
-#    test4(session, system_id)
-#    test5(session, system_id)
-    test6(session, system_id)
-
-
+    #    test1(session, system_id)
+    #    test2(session, system_id)
+    #    test3(session, system_id)
+    #    test4(session, system_id)
+    #    test5(session, system_id)
+    #    test6(session, system_id)
+    #test7(session, system_id)
+    #test8(session, system_id, APolicyName, APolicy)
+    #test9(session, system_id, APolicyName)
+    test11(session, system_id, APolicyName)
 
