@@ -229,15 +229,25 @@ class InsightsConnection(object):
         session.headers = {}
         #if self.systemid is not None:
         #    session.headers.update({'systemid': self.systemid})
+
         if self.authmethod == "BASIC":
             session.auth = (self.username, self.password)
         elif self.authmethod == "CERT":
-            cert = rhsmCertificate.certpath()
-            key = rhsmCertificate.keypath()
-            if rhsmCertificate.exists():
-                session.cert = (cert, key)
-            else:
-                logger.error('ERROR: Certificates not found.')
+            try:
+                import rhsm
+                rhsm_config = rhsm.config.initConfig()
+                rhsm_consumerCertDir = rhsm_config.get('rhsm', 'consumerCertDir')
+                rhsm_key = os.path.join(rhsm_consumerCertDir, "key.pem")
+                cert = os.path.join(rhsm_consumerCertDir, "cert.pem")
+                print("RHSM KEY: %s" % rhsm_key)
+                print("RHSM CERT: %s" % cert)
+                open(cert).close()
+                open(rhsm_key).close()
+                session.cert = (cert, rhsm_key)
+            except Exception as ex:
+                print("Could not load RHSM modules %s" % ex)
+                logger.debug("Could not load RHSM modules %s" % ex)
+
         session.verify = self.cert_verify
         session.proxies = self.proxies
         session.trust_env = False
